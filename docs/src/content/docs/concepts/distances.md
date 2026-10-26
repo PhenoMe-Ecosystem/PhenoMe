@@ -11,6 +11,6 @@ Once images are converted to embeddings, we measure mathematical distance betwee
 ## Common methods
 
 - **Euclidean vs cosine**: Euclidean measures absolute straight-line distance; cosine measures the angle between vectors (often better for high-dimensional embeddings because it ignores magnitude).
-- **Centroid vs all-to-all**: compare each image to the **average** (centroid) of the reference group (fast and stable), or to **every individual** reference image (more sensitive but slower).
+- **Centroid vs nearest**: compare each image to the **average** (centroid) of the reference group, or take the **minimum distance to any individual** reference image.
 
 For a complete guide, see [Common workflows](/PhenoMe/workflows/).

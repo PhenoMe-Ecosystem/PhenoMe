@@ -45,7 +45,7 @@ class PhenoMeDistances:
         filters: dict[str, Any | list[Any]] | None = None,
         exclude: dict[str, Any | list[Any]] | None = None,
         source: Literal["embeddings", "properties", "combined"] = "embeddings",
-        mode: Literal["centroid", "all_to_all"] = "centroid",
+        mode: Literal["centroid", "nearest"] = "centroid",
         distance_type: Literal["euclidean", "cosine"] = "euclidean",
         property_keys: list[str] | None = None,
         group_by: str | list[str] | None = None,
@@ -74,7 +74,7 @@ class PhenoMeDistances:
             source: 'embeddings' for model embeddings, 'properties' for scalar properties,
                 or 'combined' for the normalized concatenation of both.
             mode: 'centroid' computes distance to mean embedding of reference,
-                'all_to_all' computes min distance to any reference image.
+                'nearest' computes the minimum distance to any reference image.
                 When *source* is ``'embeddings'`` (L2-normalized by default), the
                 centroid is the **arithmetic mean** of reference vectors (not necessarily
                 unit length). Euclidean distance to that centroid differs from angular
@@ -138,6 +138,8 @@ class PhenoMeDistances:
             raise ValueError(
                 "reference_filters must be provided. Example: {'plate': 'P1', 'condition': 'Control'}"
             )
+        if mode not in ("centroid", "nearest"):
+            raise ValueError(f"Invalid mode: {mode!r}. Must be 'centroid' or 'nearest'.")
 
         # Apply optional global filters
         filtered_indices = common_filter_indices(self.results, filters, exclude)
@@ -155,9 +157,8 @@ class PhenoMeDistances:
         logger.info("Reference group: %s", filter_str)
         logger.info("  Found %d reference images", len(ref_indices))
         logger.info("  Mode: %s, Source: %s, Distance: %s", mode, source, distance_type)
-        mode_label = "centroid" if mode == "centroid" else "all-to-all"
         log_computing(
-            f"Computing {distance_type} {mode_label} distances "
+            f"Computing {distance_type} {mode} distances "
             f"({source}, {len(filtered_indices)} images)..."
         )
 
@@ -203,13 +204,13 @@ class PhenoMeDistances:
                 i for i, orig_idx in enumerate(filtered_indices) if orig_idx in ref_indices
             ]
 
-        # centroid: distance to mean of reference group; all_to_all: min distance to any reference
+        # centroid: distance to the mean reference vector; nearest: min distance to any reference
         if mode == "centroid":
             distances_valid = self._compute_centroid_distances(
                 embeddings, ref_indices_mapped, distance_type
             )
-        else:  # all_to_all
-            distances_valid = self._compute_all_to_all_distances(
+        else:
+            distances_valid = self._compute_nearest_distances(
                 embeddings, ref_indices_mapped, distance_type
             )
 
@@ -361,15 +362,16 @@ class PhenoMeDistances:
 
         return distances_out
 
-    def _compute_all_to_all_distances(
+    def _compute_nearest_distances(
         self,
         embeddings: np.ndarray,
         ref_indices: list,
         distance_type: Literal["euclidean", "cosine"] = "euclidean",
     ) -> np.ndarray:
-        """Compute minimum distance from each image to any reference image.
+        """Compute the minimum distance from each image to any reference image.
 
-        Uses batched GPU operations for memory efficiency.
+        Uses batched GPU operations for memory efficiency. A reference image
+        has distance 0, because the nearest reference sample is itself.
 
         Args:
             embeddings: Embedding matrix (N, n_features).
@@ -392,7 +394,7 @@ class PhenoMeDistances:
         min_distances = np.zeros(n_samples, dtype=np.float32)
 
         for start in track_steps(
-            range(0, n_samples, batch_size), desc="Computing all-to-all distances"
+            range(0, n_samples, batch_size), desc="Computing nearest distances"
         ):
             end = min(start + batch_size, n_samples)
             batch_emb = all_emb[start:end]
