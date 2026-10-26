@@ -37,34 +37,36 @@ Try the no-code experience with the **[Interactive Quickstart Notebook](Notebook
 
 ## 📦 Installation
 
-```bash
-pip install phenome
-```
+### Create a conda environment
 
-PyTorch is included. An NVIDIA GPU is used when CUDA is available; the same install runs on CPU.
-
-<details>
-<summary><b>Conda or from source</b></summary>
-
-Clone the repository, then create one environment for your hardware. These files pin the scientific stack and install this checkout.
+1. Open the terminal and clone the repository with git. 
 
 ```bash
 git clone https://github.com/PhenoMe-Ecosystem/PhenoMe.git
 cd PhenoMe
 ```
+If you don't have git installed, please download this GitHub repository, unzip the folder and open a terminal window already pointing to the PhenoMe folder containing this code (right-click on the folder and choose "New Terminal at Folder").
+
+2. Create a conda environment from the terminal:
 
 **GPU**
 ```bash
 conda env create -f envs/environment-gpu.yml
 conda activate phenome-gpu
 ```
+PyTorch is included. An NVIDIA GPU is used when CUDA is available; the same install runs on CPU.
+
 
 **CPU**
 ```bash
 conda env create -f envs/environment-cpu.yml
 conda activate phenome-cpu
 ```
-</details>
+### Install PhenoMe directly from pip within an existing environment
+
+```bash
+pip install phenome
+```
 
 > **💡 Full instructions, verification, and troubleshooting:**
 > See the [Getting started](https://phenome-ecosystem.github.io/PhenoMe/getting-started/) guide for install details, verification commands, and first-analysis walkthroughs.
