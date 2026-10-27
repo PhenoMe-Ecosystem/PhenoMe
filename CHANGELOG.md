@@ -4,6 +4,12 @@ All notable changes to PhenoMe are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** `compute_reference_distances(..., mode="all_to_all")` is now `mode="nearest"`. Each image gets the minimum distance to a reference image. A reference image is compared with the other reference images, so its distance is not zero, and it stays in the returned table and plot. `mode="all_to_all"` raises `ValueError`.
+
 ## [1.5.2] – 2026-10-21
 
 ### Changed

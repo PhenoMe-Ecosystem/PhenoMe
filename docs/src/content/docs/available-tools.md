@@ -15,7 +15,7 @@ Most analysis methods accept a feature `source`: `"embeddings"`, `"properties"`,
 | **Embeddings** | DINOv2 (built-in); custom via `ModelWrapper` | e.g. `dinov2_vitb14_reg`; channel modes `"split"` / `"combined"` |
 | **Dimensionality reduction** | PCA, t-SNE, UMAP | CPU: sklearn + umap-learn; optional GPU: TorchDR (`use_gpu_for_dr=True`) |
 | **Clustering** | k-means, GMM, DBSCAN | Optional normalize, silhouette, and PCA/t-SNE/UMAP pre-reduce |
-| **Distances & similarity** | Euclidean, cosine; prototypes; outliers | Reference modes `centroid` / `all_to_all`; outliers via z-score or IQR |
+| **Distances & similarity** | Euclidean, cosine; prototypes; outliers | Reference modes `centroid` / `nearest`; outliers via z-score or IQR |
 | **Group enrichment** | Leave-one-out z-scores; Welch + BH-FDR; property stats | Also top properties vs reference (`cohens_d` / `mean_diff`) |
 | **Properties** | Presets: none, intensity, shape, basic, standard, complete | Backends: scikit-image, scipy, numpy; factories for regionprops, intensity, texture, rings, blur, entropy; blob plugin |
 | **Batch correction** | Sphering, z-score | Control-based per batch/plate (`correct_batches`) |
