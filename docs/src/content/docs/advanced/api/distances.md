@@ -70,6 +70,10 @@ Compute distances from all images to reference group.
   or 'combined' for the normalized concatenation of both.
 - **`mode`**: 'centroid' computes distance to mean embedding of reference,
   'nearest' computes the minimum distance to any reference image.
+  A reference image is compared with the other reference images, so
+  its distance is the distance to the nearest other reference sample.
+  Those images stay in the returned table and in the distance plot.
+  With a single reference image, that distance is 0.
   When *source* is ``'embeddings'`` (L2-normalized by default), the
   centroid is the **arithmetic mean** of reference vectors (not necessarily
   unit length). Euclidean distance to that centroid differs from angular

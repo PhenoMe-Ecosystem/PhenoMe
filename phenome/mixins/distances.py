@@ -75,6 +75,10 @@ class PhenoMeDistances:
                 or 'combined' for the normalized concatenation of both.
             mode: 'centroid' computes distance to mean embedding of reference,
                 'nearest' computes the minimum distance to any reference image.
+                A reference image is compared with the other reference images, so
+                its distance is the distance to the nearest other reference sample.
+                Those images stay in the returned table and in the distance plot.
+                With a single reference image, that distance is 0.
                 When *source* is ``'embeddings'`` (L2-normalized by default), the
                 centroid is the **arithmetic mean** of reference vectors (not necessarily
                 unit length). Euclidean distance to that centroid differs from angular
@@ -371,7 +375,10 @@ class PhenoMeDistances:
         """Compute the minimum distance from each image to any reference image.
 
         Uses batched GPU operations for memory efficiency. A reference image
-        has distance 0, because the nearest reference sample is itself.
+        is compared with the other reference images, so its distance is the
+        distance to the nearest other reference sample. Those images stay in
+        the returned table and in the distance plot. With a single reference
+        image, that distance is 0.
 
         Args:
             embeddings: Embedding matrix (N, n_features).
@@ -386,6 +393,7 @@ class PhenoMeDistances:
 
         all_emb = torch.from_numpy(embeddings).to(self.device)
         ref_emb = all_emb[ref_indices]
+        ref_idx = torch.as_tensor(ref_indices, device=self.device, dtype=torch.long)
 
         # Pre-normalize reference embeddings for cosine (done once)
         if distance_type == "cosine":
@@ -405,6 +413,15 @@ class PhenoMeDistances:
                 dists = 1.0 - sim
             else:
                 dists = torch.cdist(batch_emb, ref_emb, p=2)
+
+            # A reference image is not its own nearest neighbor. Compare it
+            # with the other reference images and keep that distance.
+            if ref_emb.shape[0] > 1:
+                in_batch = (ref_idx >= start) & (ref_idx < end)
+                if bool(in_batch.any()):
+                    rows = ref_idx[in_batch] - start
+                    cols = torch.nonzero(in_batch, as_tuple=False).flatten()
+                    dists[rows, cols] = torch.inf
 
             min_dists = dists.min(dim=1).values
             min_distances[start:end] = min_dists.cpu().numpy()
