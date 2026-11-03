@@ -91,6 +91,7 @@ for memory sizing.
 | Topic | Where |
 |-------|-------|
 | Installation and quick start | [Getting started](/PhenoMe/getting-started/) |
+| Figures in the paper | [Paper reproducibility](/PhenoMe/paper-reproducibility/) |
 | Folder structure and metadata | [Preparing your data](/PhenoMe/guides/data-setup/), [Adding experiment info](/PhenoMe/guides/experiment-details/) |
 | Visual fingerprints, channel modes, and results | [Core concepts](/PhenoMe/concepts/) |
 | Full API reference | [API & data formats](/PhenoMe/advanced/), [Pipeline API](/PhenoMe/advanced/api/pipeline/) |

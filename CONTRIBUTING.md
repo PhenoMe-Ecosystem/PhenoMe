@@ -10,18 +10,17 @@ Thank you for your interest in contributing to PhenoMe. This document explains h
    cd PhenoMe
    ```
 
-2. **Create environment**
-   Manual setup with conda:
-   ```bash
-   conda env create -f envs/environment-gpu.yml
-   conda activate phenome-gpu
-   pip install -e ".[dev]"
-   ```
-   Or with pip (same ranges as the package; add dev extras):
+2. **Install the package and the development tools**
+
+   Python 3.12 or newer. This is the same pip install as the README, plus the dev extra:
+
    ```bash
    pip install -e ".[dev]"
-   # TorchDR and PyKeOps as well: pip install -e ".[dev,full]"
    ```
+
+   TorchDR and PyKeOps as well: `pip install -e ".[dev,full]"`.
+
+   `envs/environment-gpu.yml` and `envs/environment-cpu.yml` pin Python 3.12 and PyTorch 2.12 for the analyses in the paper. They are not the development environment.
 
 3. **Install pre-commit hooks**
    ```bash

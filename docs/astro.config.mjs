@@ -105,6 +105,7 @@ export default defineConfig({
           label: "Start here",
           items: [
             { label: "Getting started", link: "/getting-started/" },
+            { label: "Paper reproducibility", link: "/paper-reproducibility/" },
             { label: "Learning paths", link: "/user-paths/" },
             { label: "Common workflows", link: "/workflows/" },
           ],
