@@ -60,7 +60,11 @@ def _install_figurewidget_truthiness_patch() -> None:
         except (ValueError, TypeError):
             return False
 
-    def _remove_overlapping_props(input_data, delta_data, prop_path=()):  # type: ignore[no-untyped-def]
+    def _remove_overlapping_props(
+        input_data: Any,
+        delta_data: Any,
+        prop_path: tuple[Any, ...] = (),
+    ) -> list[tuple[Any, ...]]:
         removed: list[tuple[Any, ...]] = []
         if isinstance(input_data, dict):
             assert isinstance(delta_data, dict)

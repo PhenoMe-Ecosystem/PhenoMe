@@ -56,8 +56,8 @@ def load_image_data(
 
             if dist_results is not None:
                 dist = dist_results.at[idx, "distance"]
-                if not np.isnan(dist):
-                    meta_str += f" | Dist: {dist:.2f}"
+                if not np.isnan(dist) and isinstance(dist, (int, float, np.integer, np.floating)):
+                    meta_str += f" | Dist: {float(dist):.2f}"
 
             images.append(
                 {
