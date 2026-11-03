@@ -88,6 +88,10 @@ from `mask_dir`. Extracts per-file metadata using `metadata_fn` and stores the r
 as the internal file DataFrame used by `process_images()`, `compute_properties()`,
 and `inspect_data()`.
 
+The same rows are copied into ``results`` (paths and metadata, no embeddings).
+``plot_image_by_index`` and ``get_image_info`` work from that catalog before
+``process_images`` or ``compute_properties``. A later call replaces the catalog.
+
 **Args:**
 
 - **`image_dir`** (`str`): Root directory or glob pattern for image files. Scanned recursively.
@@ -217,6 +221,8 @@ inspect_data, and related methods.
 **Returns:**
 
   The normalized DataFrame that was stored.
+Also copies paths and metadata into ``results`` so index-based methods such as
+``plot_image_by_index`` work before embeddings or properties are computed.
 
 </div>
 
@@ -265,9 +271,12 @@ PhenoMe.process_images(
 Extract embeddings from images using a pretrained or custom model.
 
 Reads images from the file DataFrame (set via `find_files()` or `set_file_df()`),
-processes them through the model in batches, and stores embeddings and metadata
-in `self.results`. Supports filtering, channel selection, custom preprocessing,
-and checkpointing for resumable processing.
+processes them through the model in batches, and stores embeddings on the
+existing image catalog in `self.results`. Paths and metadata are already set
+by discovery; this method fills embeddings and keeps any properties already
+computed for the same paths. ``filters`` / ``exclude`` narrow the catalog to
+the images that will be embedded. Supports channel selection, custom
+preprocessing, and checkpointing for resumable processing.
 
 **Embedding storage:**
 - Eager (default): Embeddings stored in `results.embeddings` (ndarray).
@@ -302,7 +311,7 @@ Custom ``custom_transformations`` replace steps 4-6.
 - **`num_workers`** (`int`): Number of loader processes. In Jupyter, automatically
   reduced to 0 to avoid multiprocessing issues. Default: 4.
 - **`filters`** (`dict or None`): Include only rows matching criteria.
-  Format: `&#123;column: [value1, value2, ...]&#125;`. Default: None (no filtering).
+  Format: `{column: [value1, value2, ...]}`. Default: None (no filtering).
 - **`exclude`** (`dict or None`): Exclude rows matching *any* criterion (OR across
   fields). Same value format as `filters`. Default: None.
 - **`channel_mode`** (`str`): How to handle multi-channel images. One of:
@@ -838,6 +847,9 @@ PhenoMeProperties.reset_properties(
 
 Reset only the computed properties.
 
+Keeps one empty dict per catalog image so property length stays aligned
+with ``img_path``.
+
 **Args:**
 
 - **`verbose`**: If True, logs a confirmation message.
@@ -1062,7 +1074,7 @@ override values already captured from ``process_images`` /
 
 - **`path`**: Output path for config.json.
 - **`reference_filters`**: Optional dict used for compute_reference_distances
-  (e.g. {'condition': 'Control'}). Include for full traceability.
+  (e.g. &#123;'condition': 'Control'&#125;). Include for full traceability.
 - **`model_name`**: Optional model identifier (e.g. 'dinov2_vitb14_reg').
 - **`checkpoint_path`**: Optional checkpoint path used during processing (if not
   provided and a checkpoint is open, uses self._db.path).
@@ -1186,10 +1198,9 @@ Use ``property_preset`` for built-in property sets and
 ``additional_property_functions`` to add custom functions on top
 (optional).
 
-This method now relies solely on ``file_df`` (typically produced by
-[PhenoMe.find_files](/PhenoMe/advanced/api/pipeline/#api-phenome-find_files)) for resolving image and mask
-paths. Legacy ``image_dir`` / ``mask_dir`` parameters are no longer
-supported.
+Images come from the catalog written by ``find_files`` or ``set_file_df``.
+Embeddings are not required. Mask paths are resolved from ``file_df``.
+Legacy ``image_dir`` / ``mask_dir`` parameters are no longer supported.
 
 Images used for properties are loaded, laid out as HxWxC, then scaled
 with ``normalize_by_dtype_max`` (same 0-1 rule as TypeMaxNorm). Masks
@@ -1206,7 +1217,7 @@ processing pipeline of those applied steps is logged at INFO.
   preset. Valid: ``"none"``, ``"basic"``, ``"shape"``,
   ``"intensity"``, ``"standard"``, ``"complete"``.
 - **`additional_property_functions`**: Extra property functions to add on
-  top of preset. Dict of {requirement: fn_or_list} where
+  top of preset. Dict of &#123;requirement: fn_or_list&#125; where
   requirement is ``"image"``, ``"mask"``, ``"both"``, or
   ``"any"``. Merged with preset when both are used; used alone
   when ``property_preset`` is ``"none"`` or ``None``.
@@ -1239,8 +1250,8 @@ processing pipeline of those applied steps is logged at INFO.
 
 **Raises:**
 
-- **`ValueError`**: If no images processed or invalid preset/requirement
-  keys are used.
+- **`ValueError`**: If the image catalog is empty, or invalid preset/requirement
+  keys are used. Run ``find_files`` or ``set_file_df`` first.
 - **`TypeError`**: If ``additional_property_functions`` values are not
   callable.
 
@@ -2301,7 +2312,7 @@ Plot centroids of groups in reduced embedding space.
 ```python
 _ImageDisplayMixin.plot_image_by_index(
     self,
-    idx: int,
+    idx: int | collections.abc.Sequence[int],
     distance_results: pandas.DataFrame | None = None,
     channels: int | list | None = None,
     figsize: tuple = (6, 6),
@@ -2319,24 +2330,28 @@ _ImageDisplayMixin.plot_image_by_index(
 
 <div class="api-body">
 
-Plot a specific image by its index.
+Plot one image, or a row of images, by index.
 
 **Args:**
 
-- **`idx`**: Image index in results
+- **`idx`**: Image index in results, or a sequence of indices drawn as one row.
 - **`distance_results`**: Optional distance computation results DataFrame
 - **`channels`**: specific channels to plot
-- **`figsize`**: Figure size
+- **`figsize`**: Figure size. For several indices the default is one row of
+  panels about 3 inches wide; a custom size is the whole figure.
 - **`title_fields`**: Optional list of field names to display in title
-- **`show_extra_info`**: If True, prints detailed information after plotting
+- **`show_extra_info`**: If True, prints detailed information after plotting.
+  Ignored when ``idx`` is a sequence: extra info is turned off and a
+  warning is logged.
 - **`apply_transforms`**: If True, apply pipeline image_transforms
 - **`downsample`**: If not None, approximate desired size (in pixels) for the
   longest image edge when downsampling. The final image size may
   differ slightly due to integer stepping. If None, no downsampling.
 - **`ax`**: Optional matplotlib axes to plot on. If provided, a new figure is not created.
+  For several indices, pass one axes per index.
 - **`return_fig`**: If True, return the displayed image as a NumPy array
-  and do not open a matplotlib figure. Mask overlay, when requested, is
-  composited onto that array.
+  and do not open a matplotlib figure. A sequence of indices returns a list
+  of arrays. Mask overlay, when requested, is composited onto each array.
 - **`show_mask_overlay`**: If True, draws the segmentation mask as a semi-transparent
   yellow overlay with a crisp contour. Requires masks to have been discovered
   via ``mask_dir`` in ``find_files``. Useful for verifying that masks load
@@ -2344,7 +2359,8 @@ Plot a specific image by its index.
 
 **Returns:**
 
-  The image as a NumPy array when ``return_fig`` is True; otherwise ``None``.
+  The image as a NumPy array when ``return_fig`` is True and ``idx`` is a single
+  index; a list of arrays when ``idx`` is a sequence; otherwise ``None``.
 
 </div>
 

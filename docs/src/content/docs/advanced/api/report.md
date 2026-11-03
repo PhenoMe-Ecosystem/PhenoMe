@@ -127,7 +127,7 @@ for full control, or use ``**overrides`` to tweak individual settings.
 - **`config`**: Optional ReportConfig for defaults. If None, uses ReportConfig().
   **overrides: Any ReportConfig field to override. Examples:
   include_plots=False, outlier_threshold=2.5, n_clusters=10,
-  reference_filters={'condition': 'Control'}, lite_mode=True.
+  reference_filters=&#123;'condition': 'Control'&#125;, lite_mode=True.
 
 **Returns:**
 

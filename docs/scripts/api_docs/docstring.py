@@ -458,7 +458,9 @@ def escape_md_body(text: str) -> str:
     text = textwrap.dedent(text).strip()
     formatted = format_docstring(text)
 
-    parts = re.split(r"(```.*?```|`[^`]+`)", formatted, flags=re.DOTALL)
+    # Double-backtick spans must be matched before single ones. Otherwise
+    # ``name`` is read as an empty span and later `{...}` inside `code` is escaped.
+    parts = re.split(r"(```.*?```|``[^`]+``|`[^`]+`)", formatted, flags=re.DOTALL)
     for i in range(0, len(parts), 2):
         parts[i] = parts[i].replace("{", "&#123;").replace("}", "&#125;")
     return "".join(parts)

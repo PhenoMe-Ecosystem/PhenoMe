@@ -403,14 +403,14 @@ Version configuration (Constants section):
 /img_path_channels       (N, C)  vlen UTF-8  — present only for multi-channel images;
                                               each row lists the C channel paths
 /metadata/
-    {key}                (N,)    vlen UTF-8 or float32 — one dataset per metadata key
+    &#123;key&#125;                (N,)    vlen UTF-8 or float32 — one dataset per metadata key
 /properties/
-    {name}               (N,)    float32     — one dataset per property name
+    &#123;name&#125;               (N,)    float32     — one dataset per property name
 /internal/
-    {name}               (N,)    float32     — checkpoint control (not phenotypic), same N as /properties
+    &#123;name&#125;               (N,)    float32     — checkpoint control (not phenotypic), same N as /properties
 /batch_correction/                          — optional; batch / plate correction stats
     (attrs)              method, batch_metadata_key, source, written_at
-    batch_{hash}/        group per batch_id (hash of UTF-8 batch_id)
+    batch_&#123;hash&#125;/        group per batch_id (hash of UTF-8 batch_id)
         (attrs)          batch_id, n_controls
         mean             (D,) float32
         whiten_mat       (D, D) float32   — sphering

@@ -180,5 +180,6 @@ additions, concurrent reductions). If a bit-exact match matters:
 - [Performance](/PhenoMe/guides/best-practices/performance/) - when to trade a little
   reproducibility for speed.
 - [Collaboration](/PhenoMe/guides/best-practices/collaboration/) - sharing a fully reproducible bundle.
+- [Paper reproducibility](/PhenoMe/paper-reproducibility/) - the Python 3.12 and PyTorch 2.12 conda environments used for the analyses in the paper.
 - [HDF5 protocol](../../../advanced/database_protocol/) - what the
   checkpoint contains.

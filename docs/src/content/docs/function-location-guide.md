@@ -127,7 +127,7 @@ from phenome.io import read_image, FileDiscovery, CheckpointManager
 | `load_results` | Load and use an existing results/checkpoint file. | ✅ | [Pipeline](/PhenoMe/advanced/api/pipeline/#api-phenome-load_results) |
 | `plot_centroids` | Plot centroids of groups in reduced embedding space. | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_drplotsmixin-plot_centroids) |
 | `plot_counts` | Plot count of images grouped by metadata using Plotly. | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-phenomevisualization-plot_counts) |
-| `plot_image_by_index` | Plot a specific image by its index. | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_imagedisplaymixin-plot_image_by_index) |
+| `plot_image_by_index` | Plot one image, or a row of images, by index. | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_imagedisplaymixin-plot_image_by_index) |
 | `plot_pca` | Plot PCA of embeddings, properties, or combined features (Plotly, WebGL by default). | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_drplotsmixin-plot_pca) |
 | `plot_tsne` | Plot t-SNE of embeddings, properties, or combined features (Plotly, WebGL by default). | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_drplotsmixin-plot_tsne) |
 | `plot_umap` | Plot UMAP of embeddings, properties, or combined features (Plotly, WebGL by default). | ✅ | [Visualization](/PhenoMe/advanced/api/visualization/#api-_drplotsmixin-plot_umap) |
@@ -282,14 +282,11 @@ from phenome.io import read_image, FileDiscovery, CheckpointManager
 | Import | Description | Tier | Extended docs |
 | --- | --- | --- | --- |
 | `collate_fn` | Custom collate function that handles failed loads and split/combined channels. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/) |
-| `create_colab_interactive_explorer` | Launch the interactive explorer built only for Google Colab. | ✅ | [Interactive Explorer](/PhenoMe/advanced/api/interactive/#create_colab_interactive_explorer) |
-| `create_interactive_explorer` | Launch an interactive explorer for phenotyping results in Jupyter. | ✅ | [Interactive Explorer](/PhenoMe/advanced/api/interactive/#create_interactive_explorer) |
 | `EmbeddingExtractor` | Extracts embeddings from images using a ModelWrapper and DataLoader. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/) |
 | `PhenoMeAnalysis` | Pipeline providing analysis methods for PhenoMe. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/#api-phenomeanalysis-compute_clustering) |
 | `PhenoMeBatchCorrection` | Mixin: ``correct_batches()`` for plate / batch effects. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/) |
 | `PhenoMeDataset` | Dataset for loading and preprocessing images for phenotyping analysis. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/) |
 | `PhenoMeDistances` | Provides distance computation methods for PhenoMe. | 🔒 | [Distances](/PhenoMe/advanced/api/distances/#api-phenomedistances-compute_reference_distances) |
-| `PhenoMeInteractive` | High-performance interactive explorer for PhenoMe results. | ✅ | [Interactive Explorer](/PhenoMe/advanced/api/interactive/#class-phenomeinteractive) |
 | `PhenoMeProperties` | Pipeline providing property computation and reporting for PhenoMe. | 🔒 | [Pipeline](/PhenoMe/advanced/api/pipeline/#api-phenomeproperties-compute_properties) · [Properties](/PhenoMe/advanced/api/properties/) |
 | `PhenoMeVisualization` | Pipeline class providing visualization methods for PhenoMe. | 🔒 | [Visualization](/PhenoMe/advanced/api/visualization/#api-_drplotsmixin-plot_pca) |
 

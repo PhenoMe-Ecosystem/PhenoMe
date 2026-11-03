@@ -17,11 +17,12 @@ No. PhenoMe is **zero-shot**: it uses pre-trained AI models like DINOv2 out-of-t
 
 A GPU is **strongly recommended** for reasonable speed. The pipeline works on CPU, but processing thousands of images will be slow. For small datasets (hundreds of images), CPU is feasible. See [Best practices - performance](/PhenoMe/guides/best-practices/performance/).
 
-### `conda` / `pip` failed or PyTorch is wrong - what should I try?
+### `pip` failed or PyTorch is wrong - what should I try?
 
-1. Use the pinned env files under `envs/` (see [Getting started - installation](/PhenoMe/getting-started/#2-installation)).
+1. Install with pip, as in [Getting started - installation](/PhenoMe/getting-started/#2-installation): `pip install phenome`.
 2. For GPU, ensure your driver matches the CUDA wheel you install; see [PyTorch get started](https://pytorch.org/get-started/locally/).
 3. If `pykeops` fails on your OS, omit it and use the default backends (see [Best practices - performance](/PhenoMe/guides/best-practices/performance/)).
+4. To regenerate the figures in the paper, use the locked environment instead of this install. See [Paper reproducibility](/PhenoMe/paper-reproducibility/).
 
 ### I get a `[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only` error, what should I do?
 
