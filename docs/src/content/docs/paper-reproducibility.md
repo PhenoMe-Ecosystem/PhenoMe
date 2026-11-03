@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-The analyses in the paper were run with Python 3.12 and PyTorch 2.12, and with `PhenoMe(seed=42)`. Those versions are the conda environments in this repository, not the pip install.
+The everyday install is [`pip install phenome`](/PhenoMe/getting-started/#2-installation). The analyses in the paper were run with Python 3.12 and PyTorch 2.12, and with `PhenoMe(seed=42)`. Those versions are pinned in the conda environments below, not by the pip install.
 
 GPU, which is the setup used for those analyses:
 
@@ -23,4 +23,4 @@ conda env create -f envs/environment-cpu.yml
 conda activate phenome-cpu
 ```
 
-The notebooks used for the analyses, were you can reproduce the figures are in `Notebooks/examples/`.
+The notebooks that regenerate the main analyses are in `Notebooks/examples/`: BBBC021, BBBC014, the Human Protein Atlas, the *E. coli* antibiotic time course, and CellCognition. Each one calls `PhenoMe(device=device, seed=42)`.

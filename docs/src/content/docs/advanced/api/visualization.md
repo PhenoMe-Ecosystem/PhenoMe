@@ -233,7 +233,7 @@ Plot centroids of groups in reduced embedding space.
 ```python
 _ImageDisplayMixin.plot_image_by_index(
     self,
-    idx: int,
+    idx: int | collections.abc.Sequence[int],
     distance_results: pandas.DataFrame | None = None,
     channels: int | list | None = None,
     figsize: tuple = (6, 6),
@@ -251,24 +251,28 @@ _ImageDisplayMixin.plot_image_by_index(
 
 <div class="api-body">
 
-Plot a specific image by its index.
+Plot one image, or a row of images, by index.
 
 **Args:**
 
-- **`idx`**: Image index in results
+- **`idx`**: Image index in results, or a sequence of indices drawn as one row.
 - **`distance_results`**: Optional distance computation results DataFrame
 - **`channels`**: specific channels to plot
-- **`figsize`**: Figure size
+- **`figsize`**: Figure size. For several indices the default is one row of
+  panels about 3 inches wide; a custom size is the whole figure.
 - **`title_fields`**: Optional list of field names to display in title
-- **`show_extra_info`**: If True, prints detailed information after plotting
+- **`show_extra_info`**: If True, prints detailed information after plotting.
+  Ignored when ``idx`` is a sequence: extra info is turned off and a
+  warning is logged.
 - **`apply_transforms`**: If True, apply pipeline image_transforms
 - **`downsample`**: If not None, approximate desired size (in pixels) for the
   longest image edge when downsampling. The final image size may
   differ slightly due to integer stepping. If None, no downsampling.
 - **`ax`**: Optional matplotlib axes to plot on. If provided, a new figure is not created.
+  For several indices, pass one axes per index.
 - **`return_fig`**: If True, return the displayed image as a NumPy array
-  and do not open a matplotlib figure. Mask overlay, when requested, is
-  composited onto that array.
+  and do not open a matplotlib figure. A sequence of indices returns a list
+  of arrays. Mask overlay, when requested, is composited onto each array.
 - **`show_mask_overlay`**: If True, draws the segmentation mask as a semi-transparent
   yellow overlay with a crisp contour. Requires masks to have been discovered
   via ``mask_dir`` in ``find_files``. Useful for verifying that masks load
@@ -276,7 +280,8 @@ Plot a specific image by its index.
 
 **Returns:**
 
-  The image as a NumPy array when ``return_fig`` is True; otherwise ``None``.
+  The image as a NumPy array when ``return_fig`` is True and ``idx`` is a single
+  index; a list of arrays when ``idx`` is a sequence; otherwise ``None``.
 
 </div>
 
