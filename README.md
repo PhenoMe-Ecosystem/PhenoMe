@@ -73,13 +73,16 @@ Coding agents must read and follow [AGENTS.md](AGENTS.md) before writing code.
 
 ## 📜 Citation
 
-If you use PhenoMe in your research, please cite:
+If you use PhenoMe in your research, please be so kind to cite our work:
 
 ```bibtex
-@software{phenome,
-  author = {Aitor González-Marfil},
-  title = {PhenoMe: Interactive AI framework for image representation analysis},
+@article{Gonzalez-Marfil2026phenome,
+  author = {González-Marfil, Aitor and Backová, Lenka and Bernatchez, Renaud and Hidalgo-Cenalmor, Iván and Dufour, Antoine and Jacquemet, Guillaume and Lavoie-Cardinal, Flavie and Arganda-Carreras, Ignacio and Gómez-de-Mariscal, Estibaliz},
+  title = {PhenoMe: An interactive AI framework for interpretable, microscopy-driven phenotyping},
+  journal = {bioRxiv},
   year = {2026},
-  url = {https://github.com/PhenoMe-Ecosystem/PhenoMe}
+  publisher = {Cold Spring Harbor Laboratory},
+  doi = {10.64898/2026.10.29.762637},
+  url = {https://doi.org/10.64898/2026.10.29.762637}
 }
 ```
