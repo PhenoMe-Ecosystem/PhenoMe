@@ -71,9 +71,11 @@ Coding agents must read and follow [AGENTS.md](AGENTS.md) before writing code.
 
 ---
 
-## 📜 Citation
+## 📜 Publication
 
-If you use PhenoMe in your research, please be so kind to cite our work:
+[<img width="1084" height="545" alt="Screenshot 2026-11-05 at 15 17 53" src="https://github.com/user-attachments/assets/e4c932f2-d88c-4d4c-988a-777a55770474" />](https://www.biorxiv.org/content/10.64898/2026.10.29.762637v1)
+
+If you use PhenoMe, please cite our work:
 
 ```bibtex
 @article{Gonzalez-Marfil2026phenome,
@@ -86,3 +88,5 @@ If you use PhenoMe in your research, please be so kind to cite our work:
   url = {https://doi.org/10.64898/2026.10.29.762637}
 }
 ```
+
+
