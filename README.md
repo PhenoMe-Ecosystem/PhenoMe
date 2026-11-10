@@ -1,18 +1,26 @@
 <div align="center">
   <img src="docs/assets/logo.png" alt="PhenoMe logo" width="360"/>
   <p>A modular, <b>dataset-agnostic</b> and <b>model-agnostic</b> framework for phenotyping analysis, combining deep learning embeddings and image properties.</p>
+    <p>
+    <a href="https://pypi.org/project/phenome/"><img alt="PyPI" src="https://img.shields.io/pypi/v/phenome?label=PyPI"></a>
+    <a href="https://phenome-ecosystem.github.io/PhenoMe/getting-started/"><img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-3776AB"></a>
+    <a href="https://phenome-ecosystem.github.io/PhenoMe/"><img alt="Documentation" src="https://img.shields.io/badge/docs-website-blue"></a>
+    <a href="https://napari-hub.org/plugins/phenome-gui"><img alt="napari hub" src="https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/phenome-gui"></a>
+    <a href="https://doi.org/10.64898/2026.10.29.762637"><img alt="bioRxiv preprint" src="https://img.shields.io/badge/bioRxiv-preprint-b31b1b"></a>
+    <a href="https://github.com/PhenoMe-Ecosystem/PhenoMe/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-green"></a>
+  </p>
 </div>
 
 ---
 
 ### 🗺️ Navigation
 
-**[✨ Features](#-features)** | **[🚀 Quick Start](#-quick-start)** | **[📦 Installation](#-installation)** | **[📄 Paper reproducibility](#-paper-reproducibility)** | **[📖 Documentation](https://phenome-ecosystem.github.io/PhenoMe/)** | **[📜 Citation](#-citation)**
+**[✨ Features](#-features)** | **[🚀 Quick Start](#-quick-start)** | **[📦 Installation](#-installation)** | **[📄 Paper reproducibility](#-paper-reproducibility)** | **[📖 Documentation](https://phenome-ecosystem.github.io/PhenoMe/)** | **[📜 Citation](#-publication)**
 
 ---
 
 <div align="center">
-    <video src="https://github.com/user-attachments/assets/644e18f6-02a7-4700-bec2-9fcf11bde3c6"></video>
+    <video src="https://github.com/user-attachments/assets/690cd235-8188-425b-b270-4dfdc869f758"></video>
 </div>
 
 ---
