@@ -181,7 +181,7 @@ from phenome.io import read_image, FileDiscovery, CheckpointManager
 | `MetadataBase` | Base class for metadata extraction with configurable columns and ID handling. | ✅ | [Metadata Classes](/PhenoMe/advanced/api/metadata/#metadatabase) |
 | `ModelWrapper` | Base wrapper for vision model embedding extraction. | 🔧 | [Model Wrappers](/PhenoMe/advanced/api/model-wrapper/#class-modelwrapper) |
 | `normalize_by_dtype_max` | Normalize an image to [0, 1] using effective intensity scale inference. | 🔒 | [Utilities](/PhenoMe/advanced/api/utilities/) |
-| `PadToSize` | Pad image (C, H, W) equally on all sides to pad_size. | 🔧 | [Utilities](/PhenoMe/advanced/api/utilities/) |
+| `PadToSize` | Pad image (C, H, W) up to a minimum height and width. | 🔧 | [Utilities](/PhenoMe/advanced/api/utilities/) |
 | `PathTemplateMetadata` | Metadata extractor from path template with capture groups. | ✅ | [Metadata Classes](/PhenoMe/advanced/api/metadata/#pathtemplatemetadata) |
 | `ProgressCallback` | Type alias: ``(current, total, desc) -> None`` GUI progress hook. | ✅ | [Utilities](/PhenoMe/advanced/api/utilities/#report_progress) |
 | `quantile_normalize` | Apply quantile normalization to each channel independently. | ✅ | [Utilities](/PhenoMe/advanced/api/utilities/#quantile_normalize) |

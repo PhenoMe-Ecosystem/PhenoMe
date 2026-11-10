@@ -252,8 +252,8 @@ PhenoMe.process_images(
     preprocessing_description: str | None = None,
     transformations_description: str | None = None,
     append: bool = False,
-    resize_size: int | None = 224,
-    pad_size: int | None = None,
+    resize_size: int | tuple[int, int] | None = 224,
+    pad_size: int | tuple[int, int] | None = None,
     checkpoint_path: str | None = None,
     force_rgb: bool = True,
     l2_normalize_channels: bool = True,
@@ -337,9 +337,13 @@ Custom ``custom_transformations`` replace steps 4-6.
   None.
 - **`append`** (`bool`): If True, append to existing embeddings in `results.embeddings`.
   If False (default), replace. Default: False.
-- **`resize_size`** (`int or None`): Image resize dimension (square). Default: 224.
-  Set to None to skip resizing.
-- **`pad_size`** (`int or None`): Padding size (square). Default: None (no padding).
+- **`resize_size`** (`int, pair of int, or None`): Size after resize. An int is a
+  square side (224 means 224x224). A pair is (height, width), for
+  example (224, 448). Default: 224. None skips resizing.
+- **`pad_size`** (`int, pair of int, or None`): Minimum size before resize. An int
+  applies to height and width. A pair is (height, width). Each axis
+  is padded with black only when it is shorter than that minimum.
+  Default: None (no padding).
 - **`checkpoint_path`** (`str or None`): HDF5 file path for lazy storage and resumable
   processing. If file exists, processing resumes from last checkpoint.
   If None, embeddings stored in-memory. Default: None.
@@ -455,8 +459,8 @@ PhenoMe.process_temporal_images(
     custom_transformations: typing.Any | None = None,
     preprocessing_description: str | None = None,
     transformations_description: str | None = None,
-    resize_size: int | None = None,
-    pad_size: int | None = None,
+    resize_size: int | tuple[int, int] | None = None,
+    pad_size: int | tuple[int, int] | None = None,
     force_rgb: bool | None = None,
     l2_normalize_channels: bool | None = None,
     extensions: list[str] | None = None
@@ -475,7 +479,9 @@ visualize or export before calling clear_temporal_data() or reset().
 
 Requires process_images() to have been run first. Processing parameters
 (channel_mode, channels, resize_size, etc.) are inherited from the base run
-when not specified. Temporal rows get metadata['source'] = 'NEW'.
+when not specified. ``resize_size`` and ``pad_size`` take an int (square)
+or ``(height, width)``, same as ``process_images``. Temporal rows get
+metadata['source'] = 'NEW'.
 Optional ``preprocessing_description`` / ``transformations_description``
 are recorded on the session-only temporal pipeline (same optional notes as
 ``process_images``; they appear in the INFO processing pipeline log).

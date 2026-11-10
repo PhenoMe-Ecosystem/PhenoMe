@@ -417,8 +417,8 @@ Version configuration (Constants section):
         std              (D,) float32     — z-score
 /config/                                    — processing parameters (typed attributes)
     channel_mode         str  attribute
-    resize_size          str  attribute  ("none" when absent)
-    pad_size             str  attribute  ("none" when absent)
+    resize_size          int or str  square side, "HxW", or "none"
+    pad_size             int or str  square side, "HxW", or "none"
     force_rgb            bool attribute
     l2_normalize_channels bool attribute — default True when absent (legacy)
     channels             (C,) int8 dataset — absent when all channels used
@@ -1739,8 +1739,8 @@ Uses ImageNet normalization by default.
 ```python
 TransformBuilder.build(
     self,
-    resize_size: int | None = None,
-    pad_size: int | None = None,
+    resize_size: int | tuple[int, int] | None = None,
+    pad_size: int | tuple[int, int] | None = None,
     n_channels: int = 3
 ) -> Compose
 ```
@@ -1753,12 +1753,16 @@ Build torchvision transform pipeline for image preprocessing.
 
 Pipeline steps: ToTensor -> TypeMaxNorm -> [PadToSize] -> [Resize] -> Normalize.
 When both pad_size and resize_size are given, padding is applied first, then resize
-(even if resize_size is smaller than pad_size).
+(even when a resize side is smaller than the matching pad side).
 
 **Args:**
 
-- **`resize_size`**: Target spatial size (H, W) for final resize. If None, no resize.
-- **`pad_size`**: Minimum size for H and W before resize. If None, no padding.
+- **`resize_size`**: Target size. An int is a square side (224 means 224x224).
+  A pair is ``(height, width)``, for example ``(224, 448)``.
+  If None, no resize.
+- **`pad_size`**: Minimum size before resize. An int applies to height and
+  width. A pair is ``(height, width)``. Each shorter axis is padded
+  with black. If None, no padding.
 - **`n_channels`**: Number of input channels for Normalize mean/std (default 3).
 
 **Returns:**

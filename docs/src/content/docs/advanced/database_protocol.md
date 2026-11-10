@@ -102,8 +102,8 @@ Full paths (e.g. `data_dir`) are never stored.
 | Attribute / dataset | Type | Description |
 | :--- | :--- | :--- |
 | `channel_mode` | `str` attr | `'split'` or `'combined'`. |
-| `resize_size` | `str` attr | Target square resize size, or `"none"` when resizing was skipped. |
-| `pad_size` | `str` attr | Minimum pad size before resize, or `"none"` when padding was skipped. |
+| `resize_size` | `int` or `str` attr | Square side as an int (`224` means 224×224), a rectangle as `"HxW"` (`"224x448"` means height 224 and width 448), or `"none"` when resizing was skipped. |
+| `pad_size` | `int` or `str` attr | Minimum size before resize, same forms as `resize_size`, or `"none"` when padding was skipped. |
 | `force_rgb` | `bool` attr | Whether grayscale inputs were expanded to 3-channel RGB for the model. |
 | `l2_normalize_channels` | `bool` attr | In split mode: whether each channel embedding was L2-normalized before concatenation (equal channel contribution). Default when absent on older files: `True` (current split-mode behavior). Ignored for combined mode. |
 | `channels` | `int` dataset `(C,)` | Optional channel index subset. Absent when all channels were used. |

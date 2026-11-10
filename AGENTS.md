@@ -58,7 +58,7 @@ Link embeddings to measurements only when that is the question.
 - Embedding dimensions use `compute_embedding_property_correlations` and `summarize_embedding_property_correlations`.
 - A joint fit uses `compute_multivariate_interpretability`.
 
-After each step, read what it printed and any variable you kept. Before `process_images`, the file count, metadata keys, and the sample image have to match the dataset. Read height and width from `inspect_data`. If the default 224-pixel square would compress the content too far or stretch a non-square image, set `resize_size` and `pad_size`. Call `get_available_metadata_keys()` before `color_by`, filters, or `batch_metadata_key`, and `get_available_property_keys()` before naming a property.
+After each step, read what it printed and any variable you kept. Before `process_images`, the file count, metadata keys, and the sample image have to match the dataset. Read height and width from `inspect_data`. If the default 224-pixel square would compress the content too far or stretch a non-square image, set `resize_size` and `pad_size`. An int is a square side. A pair `(height, width)` keeps a rectangular frame. Call `get_available_metadata_keys()` before `color_by`, filters, or `batch_metadata_key`, and `get_available_property_keys()` before naming a property.
 
 Save a run the scientist will open later with `save_results`. Add `export_experiment_config`, `export_methods_markdown`, or `generate_report(..., include_run_settings=True)` for each extra file the user should receive.
 

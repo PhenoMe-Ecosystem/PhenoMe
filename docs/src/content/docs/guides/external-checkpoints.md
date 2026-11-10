@@ -79,8 +79,8 @@ root level:
   | Attribute / dataset | Type | Description |
   |--------------------|------|-------------|
   | `channel_mode` | str | `'split'` or `'combined'`. |
-  | `resize_size` | str | Square resize size, or `"none"`. |
-  | `pad_size` | str | Pad size, or `"none"`. |
+  | `resize_size` | int or str | Square side (`224`), rectangle `"HxW"` (`"224x448"`), or `"none"`. |
+  | `pad_size` | int or str | Minimum pad size, same forms as `resize_size`, or `"none"`. |
   | `force_rgb` | bool | Grayscale expanded to RGB. |
   | `l2_normalize_channels` | bool | Split mode: L2 each channel before concat. Absent → treated as `True`. |
   | `channels` | int dataset `(C,)` | Optional channel subset; omit if all channels. |

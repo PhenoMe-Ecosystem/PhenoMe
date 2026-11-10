@@ -16,6 +16,7 @@ import numpy as np
 from .._logging import get_logger
 from ..core.batch_correction import BatchCorrectionStats, MethodName
 from ..core.pipeline_results import PhenoMeResults
+from ..utils.transforms import _canonical_spatial_size
 from ._checkpoint_ops import (
     append_2d_vlen_dataset,
     append_internal_group,
@@ -35,6 +36,21 @@ from ._checkpoint_ops import (
     write_pipeline_to_h5,
     write_properties_group,
 )
+
+
+def _spatial_size_config_value(size: Any) -> int | str:
+    """HDF5 form of a spatial size.
+
+    A square is an int. A rectangle is ``"HxW"``. A skipped step is ``"none"``.
+    """
+    canonical = _canonical_spatial_size(size)
+    if canonical is None:
+        return "none"
+    if isinstance(canonical, tuple):
+        height, width = canonical
+        return f"{height}x{width}"
+    return canonical
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -161,8 +177,8 @@ class CheckpointManager:
             std              (D,) float32     — z-score
     /config/                                    — processing parameters (typed attributes)
         channel_mode         str  attribute
-        resize_size          str  attribute  ("none" when absent)
-        pad_size             str  attribute  ("none" when absent)
+        resize_size          int or str  square side, "HxW", or "none"
+        pad_size             int or str  square side, "HxW", or "none"
         force_rgb            bool attribute
         l2_normalize_channels bool attribute — default True when absent (legacy)
         channels             (C,) int8 dataset — absent when all channels used
@@ -397,7 +413,9 @@ class CheckpointManager:
             else:
                 val = cfg.attrs.get(key, None)
                 if val is not None:
-                    if val == "none":
+                    if key in ("resize_size", "pad_size"):
+                        params[key] = _canonical_spatial_size(val)
+                    elif val == "none":
                         params[key] = None
                     elif isinstance(val, (np.bool_, bool)):
                         params[key] = bool(val)
@@ -429,6 +447,8 @@ class CheckpointManager:
                     del cfg["channels"]
                 if val is not None:
                     cfg.create_dataset("channels", data=np.array(val, dtype=np.int32))
+            elif key in ("resize_size", "pad_size"):
+                cfg.attrs[key] = _spatial_size_config_value(val)
             else:
                 cfg.attrs[key] = "none" if val is None else val
         f.flush()
@@ -467,6 +487,9 @@ class CheckpointManager:
                 sv = list(sv)
             if isinstance(cv, (list, tuple, np.ndarray)):
                 cv = list(cv)
+            if key in ("resize_size", "pad_size"):
+                sv = _canonical_spatial_size(sv)
+                cv = _canonical_spatial_size(cv)
 
             if sv is None and cv is None:
                 continue
@@ -1544,6 +1567,8 @@ class CheckpointManager:
                         if key == "channels":
                             if val is not None:
                                 cfg.create_dataset("channels", data=np.array(val, dtype=np.int32))
+                        elif key in ("resize_size", "pad_size"):
+                            cfg.attrs[key] = _spatial_size_config_value(val)
                         else:
                             cfg.attrs[key] = "none" if val is None else val
 

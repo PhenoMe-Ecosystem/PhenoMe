@@ -62,7 +62,7 @@ from .utils.device import get_default_device, set_default_device, set_determinis
 from .utils.model_wrapper import ModelWrapper
 from .utils.path_utils import path_repr as _path_repr
 from .utils.progress import ProgressCallback
-from .utils.transforms import _n_channels_for_transforms
+from .utils.transforms import SpatialSize, _canonical_spatial_size, _n_channels_for_transforms
 
 logger = get_logger(__name__)
 
@@ -605,8 +605,8 @@ class PhenoMe(
         preprocessing_description: str | None = None,
         transformations_description: str | None = None,
         append: bool = False,
-        resize_size: int | None = 224,
-        pad_size: int | None = None,
+        resize_size: SpatialSize | None = 224,
+        pad_size: SpatialSize | None = None,
         checkpoint_path: str | None = None,
         force_rgb: bool = True,
         l2_normalize_channels: bool = True,
@@ -683,9 +683,13 @@ class PhenoMe(
                 None.
             append (bool): If True, append to existing embeddings in `results.embeddings`.
                 If False (default), replace. Default: False.
-            resize_size (int or None): Image resize dimension (square). Default: 224.
-                Set to None to skip resizing.
-            pad_size (int or None): Padding size (square). Default: None (no padding).
+            resize_size (int, pair of int, or None): Size after resize. An int is a
+                square side (224 means 224x224). A pair is (height, width), for
+                example (224, 448). Default: 224. None skips resizing.
+            pad_size (int, pair of int, or None): Minimum size before resize. An int
+                applies to height and width. A pair is (height, width). Each axis
+                is padded with black only when it is shorter than that minimum.
+                Default: None (no padding).
             checkpoint_path (str or None): HDF5 file path for lazy storage and resumable
                 processing. If file exists, processing resumes from last checkpoint.
                 If None, embeddings stored in-memory. Default: None.
@@ -890,7 +894,9 @@ class PhenoMe(
         )
 
         cur_t = custom_transformations or self._build_transforms(
-            resize_size, pad_size, n_channels=_n_channels_for_transforms(cur_params)
+            cur_params["resize_size"],
+            cur_params["pad_size"],
+            n_channels=_n_channels_for_transforms(cur_params),
         )
         self.image_transforms = cur_t
 
@@ -947,8 +953,8 @@ class PhenoMe(
         custom_transformations: Any | None = None,
         preprocessing_description: str | None = None,
         transformations_description: str | None = None,
-        resize_size: int | None = None,
-        pad_size: int | None = None,
+        resize_size: SpatialSize | None = None,
+        pad_size: SpatialSize | None = None,
         force_rgb: bool | None = None,
         l2_normalize_channels: bool | None = None,
         extensions: list[str] | None = None,
@@ -961,7 +967,9 @@ class PhenoMe(
 
         Requires process_images() to have been run first. Processing parameters
         (channel_mode, channels, resize_size, etc.) are inherited from the base run
-        when not specified. Temporal rows get metadata['source'] = 'NEW'.
+        when not specified. ``resize_size`` and ``pad_size`` take an int (square)
+        or ``(height, width)``, same as ``process_images``. Temporal rows get
+        metadata['source'] = 'NEW'.
         Optional ``preprocessing_description`` / ``transformations_description``
         are recorded on the session-only temporal pipeline (same optional notes as
         ``process_images``; they appear in the INFO processing pipeline log).
@@ -1062,16 +1070,10 @@ class PhenoMe(
 
         tr = PhenoMeResults()
         tb: list[np.ndarray] = []
-        rs = cur_params["resize_size"]
-        ps = cur_params["pad_size"]
-        rs_int: int | None = int(rs) if isinstance(rs, (int, float)) and rs != "none" else None
-        ps_int: int | None = int(ps) if isinstance(ps, (int, float)) and ps != "none" else None
-        if rs_int is None and isinstance(rs, str) and rs.lower() == "none":
-            rs_int = None
-        if ps_int is None and isinstance(ps, str) and ps.lower() == "none":
-            ps_int = None
         ct = custom_transformations or self._build_transforms(
-            rs_int, ps_int, n_channels=_n_channels_for_transforms(cur_params)
+            cur_params["resize_size"],
+            cur_params["pad_size"],
+            n_channels=_n_channels_for_transforms(cur_params),
         )
         dl = self._create_dataloader(
             fdata,
@@ -2356,8 +2358,8 @@ class PhenoMe(
         *,
         channel_mode: str,
         channels: list[int] | None,
-        resize_size: int | None,
-        pad_size: int | None,
+        resize_size: SpatialSize | None,
+        pad_size: SpatialSize | None,
         force_rgb: bool,
         l2_normalize_channels: bool,
         preprocessing_fn: Callable[[np.ndarray], np.ndarray] | None,
@@ -2398,8 +2400,8 @@ class PhenoMe(
         cur_params = {
             "channel_mode": channel_mode,
             "channels": channels,
-            "resize_size": resize_size,
-            "pad_size": pad_size,
+            "resize_size": _canonical_spatial_size(resize_size),
+            "pad_size": _canonical_spatial_size(pad_size),
             "force_rgb": force_rgb,
             "l2_normalize_channels": l2_normalize_channels,
         }
@@ -2476,8 +2478,8 @@ class PhenoMe(
         *,
         channel_mode: Literal["split", "combined"] | None = None,
         channels: list[int] | None = None,
-        resize_size: int | None = None,
-        pad_size: int | None = None,
+        resize_size: SpatialSize | None = None,
+        pad_size: SpatialSize | None = None,
         force_rgb: bool | None = None,
         l2_normalize_channels: bool | None = None,
     ) -> dict[str, Any]:
@@ -2494,8 +2496,12 @@ class PhenoMe(
         return {
             "channel_mode": channel_mode or _v("channel_mode", "split"),
             "channels": channels if channels is not None else base.get("channels"),
-            "resize_size": resize_size if resize_size is not None else _v("resize_size", 224),
-            "pad_size": pad_size if pad_size is not None else base.get("pad_size"),
+            "resize_size": _canonical_spatial_size(
+                resize_size if resize_size is not None else _v("resize_size", 224)
+            ),
+            "pad_size": _canonical_spatial_size(
+                pad_size if pad_size is not None else base.get("pad_size")
+            ),
             "force_rgb": force_rgb if force_rgb is not None else _v("force_rgb", True),
             "l2_normalize_channels": (
                 l2_normalize_channels
@@ -2596,8 +2602,8 @@ class PhenoMe(
 
     def _build_transforms(
         self,
-        resize_size: int | None,
-        pad_size: int | None = None,
+        resize_size: SpatialSize | None,
+        pad_size: SpatialSize | None = None,
         n_channels: int = 3,
     ) -> Any:
         """Build torchvision Compose applied to each image before the model forward pass."""

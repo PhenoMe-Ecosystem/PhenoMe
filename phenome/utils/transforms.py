@@ -6,12 +6,16 @@ quantile_normalize, resolve_intensity_scale, normalize_by_dtype_max) and PyTorch
 transforms (TypeMaxNorm, PadToSize, TransformBuilder).
 """
 
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
+
+# An int is a square side. A pair is (height, width).
+SpatialSize = int | tuple[int, int]
 
 # =============================================================================
 # NumPy-based image utilities
@@ -204,32 +208,41 @@ class TypeMaxNorm:
 
 
 class PadToSize:
-    """Pad image (C, H, W) equally on all sides to pad_size.
+    """Pad image (C, H, W) up to a minimum height and width.
 
-    PyTorch transform for padding images to a minimum size.
+    PyTorch transform for padding images to a minimum size. An int sets both
+    axes. A pair ``(height, width)`` sets them separately. Padding is centered
+    and only applied on axes that are shorter than the minimum.
     """
 
-    def __init__(self, pad_size: int = 112):
+    def __init__(self, pad_size: SpatialSize = 112):
         """Initialize pad transform.
 
         Args:
-            pad_size: Minimum size for height and width after padding.
+            pad_size: Minimum size. An int applies to height and width. A pair
+                is ``(height, width)``.
         """
-        self.pad_size = pad_size
+        parsed = _parse_spatial_size(pad_size)
+        if parsed is None:
+            raise ValueError("pad_size is required")
+        self._height, self._width = parsed
+        canonical = _canonical_spatial_size(pad_size)
+        assert canonical is not None
+        self.pad_size: SpatialSize = canonical
 
     def __call__(self, img: torch.Tensor) -> torch.Tensor:
         """Pad image tensor if needed.
 
         Args:
             img: torch.Tensor, shape (C, H, W). Padded with black (constant zeros)
-                on all sides.
+                on axes shorter than the minimum.
 
         Returns:
-            torch.Tensor: Shape (C, max(H, pad_size), max(W, pad_size)).
+            torch.Tensor: Shape ``(C, max(H, height), max(W, width))``.
         """
         _c, h, w = img.shape
-        if h < self.pad_size or w < self.pad_size:
-            ph, pw = max(0, self.pad_size - h), max(0, self.pad_size - w)
+        if h < self._height or w < self._width:
+            ph, pw = max(0, self._height - h), max(0, self._width - w)
             pt, pl = ph // 2, pw // 2
             img = F.pad(img, (pl, pw - pl, pt, ph - pt), "constant", 0)
         return img
@@ -238,9 +251,109 @@ class PadToSize:
         return f"{self.__class__.__name__}(pad_size={self.pad_size})"
 
 
-def _pad_to_size_pipeline_detail(pad_size: int) -> str:
+def _as_positive_int(value: Any) -> int:
+    """Return a positive int, or raise TypeError/ValueError."""
+    if isinstance(value, bool):
+        raise TypeError(value)
+    if isinstance(value, (bytes, bytearray)):
+        value = value.decode()
+    if isinstance(value, str):
+        number = float(value.strip())
+        if not number.is_integer():
+            raise ValueError(value)
+        value = int(number)
+    elif isinstance(value, (float, np.floating)):
+        number = float(value)
+        if not number.is_integer():
+            raise ValueError(value)
+        value = int(number)
+    elif isinstance(value, (int, np.integer)):
+        value = int(value)
+    else:
+        raise TypeError(value)
+    if value <= 0:
+        raise ValueError(value)
+    return value
+
+
+def _parse_spatial_size(size: Any) -> tuple[int, int] | None:
+    """Return ``(height, width)``, or None when the step is skipped.
+
+    An int, or a numeric string, is a square. A pair, a length-2 array, or a
+    string ``"HxW"`` / ``"H,W"`` sets height and width separately. ``None`` and
+    ``"none"`` skip the step.
+    """
+    try:
+        return _parse_spatial_size_value(size)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "spatial size must be a positive integer (square) or a pair "
+            f"(height, width), got {size!r}"
+        ) from exc
+
+
+def _parse_spatial_size_value(size: Any) -> tuple[int, int] | None:
+    """Parse one spatial size without the public error message."""
+    if size is None:
+        return None
+    if isinstance(size, (bytes, bytearray)):
+        size = size.decode()
+    if isinstance(size, str):
+        text = size.strip()
+        if text.lower() == "none":
+            return None
+        if text.startswith("(") and text.endswith(")"):
+            text = text[1:-1].strip()
+        lowered = text.lower()
+        if "x" in lowered or "," in lowered:
+            parts = [part.strip() for part in lowered.replace("x", ",").split(",") if part.strip()]
+            if len(parts) != 2:
+                raise ValueError(text)
+            height = _as_positive_int(parts[0])
+            width = _as_positive_int(parts[1])
+            return height, width
+        side = _as_positive_int(lowered)
+        return side, side
+    if isinstance(size, np.ndarray):
+        if size.shape == ():
+            return _parse_spatial_size_value(size.item())
+        flat = np.reshape(size, -1)
+        if flat.size == 1:
+            return _parse_spatial_size_value(flat[0].item())
+        if flat.size != 2:
+            raise ValueError(size)
+        return _as_positive_int(flat[0].item()), _as_positive_int(flat[1].item())
+    if isinstance(size, Sequence) and not isinstance(size, (str, bytes)):
+        if len(size) != 2:
+            raise ValueError(size)
+        return _as_positive_int(size[0]), _as_positive_int(size[1])
+    side = _as_positive_int(size)
+    return side, side
+
+
+def _canonical_spatial_size(size: Any) -> SpatialSize | None:
+    """Return an int when square, ``(height, width)`` when not, or None if skipped."""
+    parsed = _parse_spatial_size(size)
+    if parsed is None:
+        return None
+    height, width = parsed
+    if height == width:
+        return height
+    return (height, width)
+
+
+def _format_spatial_size(size: SpatialSize) -> str:
+    """Return ``HxW`` for a square int or a ``(height, width)`` pair."""
+    parsed = _parse_spatial_size(size)
+    if parsed is None:
+        raise ValueError("spatial size is missing")
+    height, width = parsed
+    return f"{height}x{width}"
+
+
+def _pad_to_size_pipeline_detail(pad_size: SpatialSize) -> str:
     """Plain-language PadToSize step. Fill is constant black (``F.pad`` value 0)."""
-    return f"minimum size {pad_size}x{pad_size}, black (constant fill)"
+    return f"minimum size {_format_spatial_size(pad_size)}, black (constant fill)"
 
 
 class TransformBuilder:
@@ -266,19 +379,23 @@ class TransformBuilder:
 
     def build(
         self,
-        resize_size: int | None = None,
-        pad_size: int | None = None,
+        resize_size: SpatialSize | None = None,
+        pad_size: SpatialSize | None = None,
         n_channels: int = 3,
     ) -> transforms.Compose:
         """Build torchvision transform pipeline for image preprocessing.
 
         Pipeline steps: ToTensor -> TypeMaxNorm -> [PadToSize] -> [Resize] -> Normalize.
         When both pad_size and resize_size are given, padding is applied first, then resize
-        (even if resize_size is smaller than pad_size).
+        (even when a resize side is smaller than the matching pad side).
 
         Args:
-            resize_size: Target spatial size (H, W) for final resize. If None, no resize.
-            pad_size: Minimum size for H and W before resize. If None, no padding.
+            resize_size: Target size. An int is a square side (224 means 224x224).
+                A pair is ``(height, width)``, for example ``(224, 448)``.
+                If None, no resize.
+            pad_size: Minimum size before resize. An int applies to height and
+                width. A pair is ``(height, width)``. Each shorter axis is padded
+                with black. If None, no padding.
             n_channels: Number of input channels for Normalize mean/std (default 3).
 
         Returns:
@@ -291,18 +408,22 @@ class TransformBuilder:
         )
         std = self.std[:n_channels] if len(self.std) >= n_channels else (self.std[0],) * n_channels
 
+        pad_hw = _canonical_spatial_size(pad_size)
+        resize_hw = _canonical_spatial_size(resize_size)
         t = [transforms.ToTensor(), TypeMaxNorm()]
-        if pad_size is not None:
-            t.append(PadToSize(pad_size=pad_size))
-        if resize_size is not None:
-            t.append(transforms.Resize((resize_size, resize_size), antialias=True))
+        if pad_hw is not None:
+            t.append(PadToSize(pad_size=pad_hw))
+        if resize_hw is not None:
+            parsed = _parse_spatial_size(resize_hw)
+            assert parsed is not None
+            t.append(transforms.Resize(parsed, antialias=True))
         t.append(transforms.Normalize(mean=mean, std=std))
         return transforms.Compose(t)
 
 
-def _resize_pipeline_detail(resize_size: int) -> str:
+def _resize_pipeline_detail(resize_size: SpatialSize) -> str:
     """Plain-language default resize step. Interpolation is bilinear with antialias."""
-    return f"{resize_size}x{resize_size}, bilinear (antialiased)"
+    return f"{_format_spatial_size(resize_size)}, bilinear (antialiased)"
 
 
 def _n_channels_for_transforms(cur_params: dict[str, Any]) -> int:
