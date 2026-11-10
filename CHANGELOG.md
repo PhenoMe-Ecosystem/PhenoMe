@@ -4,7 +4,13 @@ All notable changes to PhenoMe are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [1.5.3] – 2026-11-10
+
+### Added
+
+- `resize_size` and `pad_size` take an int (square side) or `(height, width)` on `process_images` and `process_temporal_images`. Padding is applied on each axis that is shorter than that minimum. Checkpoints store a rectangle as `"HxW"`.
+- STED-FM synaptic-protein example (`Notebooks/examples/sted_fm_synaptic_proteins.ipynb`), with helpers in `Notebooks/examples/sted_fm_utils/`.
+- Paper reproducibility guide. The README cites the bioRxiv preprint.
 
 ### Changed
 
