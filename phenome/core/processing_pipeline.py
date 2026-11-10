@@ -16,6 +16,7 @@ import numpy as np
 
 from ..io.discovery import _read_image_native, ensure_hwc
 from ..utils.transforms import (
+    _canonical_spatial_size,
     _n_channels_for_transforms,
     _pad_to_size_pipeline_detail,
     _resize_pipeline_detail,
@@ -1645,23 +1646,23 @@ def _build_steps(
                 "technical": {"mode": scale_mode, "scale": scale_value},
             }
         )
-        pad_size = cur_params.get("pad_size")
+        pad_size = _canonical_spatial_size(cur_params.get("pad_size"))
         if pad_size is not None:
             steps.append(
                 {
                     "id": "pad",
                     "title": "Pad",
-                    "detail": _pad_to_size_pipeline_detail(int(pad_size)),
+                    "detail": _pad_to_size_pipeline_detail(pad_size),
                     "technical": {"pad_size": pad_size},
                 }
             )
-        resize_size = cur_params.get("resize_size")
+        resize_size = _canonical_spatial_size(cur_params.get("resize_size"))
         if resize_size is not None:
             steps.append(
                 {
                     "id": "resize",
                     "title": "Resize",
-                    "detail": _resize_pipeline_detail(int(resize_size)),
+                    "detail": _resize_pipeline_detail(resize_size),
                     "technical": {"resize_size": resize_size},
                 }
             )
