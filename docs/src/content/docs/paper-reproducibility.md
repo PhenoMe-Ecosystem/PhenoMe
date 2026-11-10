@@ -23,4 +23,4 @@ conda env create -f envs/environment-cpu.yml
 conda activate phenome-cpu
 ```
 
-The notebooks that regenerate the main analyses are in `Notebooks/examples/`: BBBC021, BBBC014, the Human Protein Atlas, the *E. coli* antibiotic time course, CellCognition, and STED-FM on synaptic proteins. Each one calls `PhenoMe(device=device, seed=42)`. The STED-FM notebook also needs the [STED-FM](https://github.com/FLClab/STED-FM) package, which is not part of the PhenoMe install. The install commands and the dataset scripts are in that notebook and in `Notebooks/examples/sted_fm/`.
+The notebooks that regenerate the main analyses are in `Notebooks/examples/`: BBBC021, BBBC014, the Human Protein Atlas, the *E. coli* antibiotic time course, CellCognition, and STED-FM on synaptic proteins. Each one calls `PhenoMe(device=device, seed=42)`. The STED-FM notebook also needs the [STED-FM](https://github.com/FLClab/STED-FM) package, which is not part of the PhenoMe install. The install commands and the dataset scripts are in that notebook and in `Notebooks/examples/sted_fm_utils/`.

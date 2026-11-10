@@ -1,18 +1,9 @@
-"""Cluster-level variant of `synaptic_protein_helper`: one crop per synaptic cluster.
+"""One crop per synaptic cluster from the Zooniverse annotations.
 
-`export_object_crops` treats every connected component of a class channel as an object and
-cuts a fixed-size window around its centroid. This module instead exports one crop per
-*cluster*: components whose closest pixels are within `min_distance` are merged into a single
-ROI, and each crop is that ROI's own bounding box, so what is kept follows the object rather
-than a constant window. The bounding box is then centered in a zero-filled canvas (224x224
-by default), which gives the crops a uniform size without resizing the object.
-
-The output layout is unchanged, so the result still feeds
-`pheno.find_files(images_dir, mask_dir=masks_dir,
-metadata_fn=make_dataframe_metadata_fn(metadata_df))`. Crops are cut from the
-full-resolution original images held in `dataset.images`, and every recorded coordinate is
-global. Everything that does not depend on the two changes above is imported from
-`synaptic_protein_helper`.
+Components whose closest pixels are within `min_distance` are merged into one ROI.
+Each crop is that ROI's bounding box, cut from the full-resolution image, then
+centered on a zero-filled canvas when a fixed size is requested. The result is a
+PhenoMe folder: `images/`, `masks/`, and `metadata.csv`.
 """
 
 import os
@@ -58,7 +49,7 @@ def group_nearby_objects(binary: np.ndarray, min_distance: float = 0.0) -> np.nd
     Args:
         binary: 2D boolean array, one class channel of a thresholded label stack.
         min_distance: Minimum gap in pixels between two components for them to stay
-            separate ROIs. 0 labels plain connected components, as `find_objects` does.
+            separate ROIs. 0 labels plain connected components.
 
     Returns:
         int array of the same shape as `binary`, 0 on background. Label values are not
@@ -196,8 +187,8 @@ def export_cluster_crops(
         output_dir: Destination directory; `images_subdir`, `masks_subdir` and the metadata
             csv are created inside it.
         min_distance: Minimum gap in pixels between two annotated components for them to be
-            exported as separate ROIs; closer ones are merged into a single crop. 0 keeps the
-            plain connected-component behaviour of `export_object_crops`.
+            exported as separate ROIs; closer ones are merged into a single crop. 0 keeps
+            each connected component as its own crop.
         bbox_padding: Pixels added on each side of the bounding box. Padding that falls
             outside the image is filled with zeros.
         pad_to_size: Target (height, width) of the written crops, or a single int for a

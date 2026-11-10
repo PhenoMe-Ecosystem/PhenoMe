@@ -22,23 +22,6 @@ def download_zoo_dataset(path: str, filename: str = "zoo_data.hdf5") -> None:
         file.write(response.content)
 
 
-def download_actin_dataset(path: str, filename: str = "actin_data.zip") -> None:
-    """Download the Actin Conformations dataset as a .hdf5 file.
-
-    Args:
-        path: Path where the data will be downloaded
-        filename: Name of the Zooniverse .hdf5 file
-    """
-    output_path = Path(os.path.join(path, filename))
-    if output_path.is_file():
-        print("Actin dataset already exists!")
-        return
-    url = "https://zenodo.org/records/15608267/files/factin-conformations-dataset.zip?download=1"
-    response = requests.get(url)
-    with open(output_path, "wb") as file:
-        file.write(response.content)
-
-
 def download_nas_dataset(path: str, filename: str = "nas_data.tar") -> None:
     """Download the NAS dataset as a .tar file.
 
@@ -79,7 +62,6 @@ DATASETS = {
     "Zooniverse": download_zoo_dataset,
     "NAS": download_nas_dataset,
     "Optim": download_optim_dataset,
-    "Actin": download_actin_dataset,
 }
 
 
