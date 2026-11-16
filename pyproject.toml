@@ -61,7 +61,7 @@ dependencies = [
     "jupyterlab_widgets>=3.0",
     "nbformat>=5.9",
     "pillow",
-    "umap-learn==0.5.12",
+    "umap-learn==0.6.0",
     "nibabel>=5.2.0,<6",
     "dcor==0.7",
 ]
